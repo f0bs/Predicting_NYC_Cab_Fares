@@ -70,22 +70,17 @@ dtype: int64
 ```
 
 
-1. Filtering out data points that were eithe zero or outside of NYC's coordinates: 
+1. Filtering out data points that were either zero or outside of NYC's coordinates: 
 ```
 #filter out entries too west or too south
 WESTMOST_LONG = -74.273654
 SOUTHMOST_LAT = 40.480883
 NORTHMOST_LAT = 40.917335
 EASTMOST_LONG = -73.645863
-
-concat = concat[concat['pickup_longitude'] >= WESTMOST_LONG]
-concat = concat[concat['pickup_latitude'] >= SOUTHMOST_LAT]
-concat = concat[concat['pickup_longitude'] <= EASTMOST_LONG]
-concat = concat[concat['pickup_latitude'] <= NORTHMOST_LAT]
 ```
 2. Trip characteristics
 
-We used Gaurav's summary statistics[https://github.com/snowolf/Taxi-Demand-Prediction-New-York-City/blob/master/Taxi-Demand-Prediction-NYC.ipynb] of the Jan 2015 file to remove speed, distance and duration:
+We followed Gaurav's methods for (data cleaning)[https://github.com/snowolf/Taxi-Demand-Prediction-New-York-City/blob/master/Taxi-Demand-Prediction-NYC.ipynb] to remove speed, distance and duration:
 
 * Remove all rides with average speeds above 45.31 mph:
 ```
@@ -120,13 +115,29 @@ The resulting data set left us with a little more than 12 million data entries.
 
 We used BigML to create our prediction models. The picked a random 5% sample of our complete dataset (maximum file load <1GB) with 505,000 entries and split it in 80:20 training and test set.
 
-### Lienar Regression for Trip Fare
+### Linear Regression for Trip Fare
+
+
 
 ### Linear Fare for Trip Amount
 
+
+
 ### Decision Tree for High/Low Fare
+
+
 
 ### Descision Tree for Tip/No Tip
 
+
+
+## Key Learnings
+
+
+* Predicting fares and tips amount simply based on location and time is difficult
+* K-Means model did not give much valuable insights in our effort to improve actionability
+* Models had higher success rate than random choice (50:50), but **ROC AUC** did not indicate good models
+* Even **ensemble ML models** (decision forest, boosted trees) could not really improve the model performance
+* Our model predicting the range of increase/decrease of both fare and tips show low R-squared, so the current input variables in the dataset are **not good enough predictors** to explain response variable
 
 
