@@ -13,6 +13,30 @@ We tested:
 
 We used NYC's public TLC data that can be downloaded on the NYC.gov[https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page] website. We used 2015 data as this was the last year in which the TLC provided lat and long coordinates. Each monthly dataset contains about 2GB of data.
 
+| ID                    | Description                                    |
+|-----------------------|------------------------------------------------|
+| vendorID              | TPEP provider                                  |
+| tpep_pickup_datetime  | Date & Time of pickup                          |
+| payment_type          | Payment method (ex: 1 = credit card, 2 = cash) |
+| tpep_dropoff_datetime | Date & Time of dropoff                         |
+| fare_amount           | Time-and-distance fare calculated by meter     |
+| passenger_count       | Number of passengers                           |
+| extra                 | Other extras and surcharges                    |
+| trip_distance         | Miles reported by taximeter                    |
+| mta_tax               | $0.50 MTA tax by metered rate in use           |
+| ratecodeID            | Final rate code (ex: 1 = Standard, 2 = JFK)    |
+| tip_amount            | Tip amount (cash tips not included)            |
+| store_and_fwd_flag    | Record held in vehicle memory                  |
+| tolls_amount          | Tolls amount                                   |
+| pickup_latitude       | Latitude where the meter was engaged           |
+| pickup_longitude      | Longitude where the meter was engaged          |
+| dropoff_latitude      | Longitude where the meter was timed off        |
+| dropoff_longitude     | Longitude where the meter was timed off        |
+| improvement_surcharge |                                                |
+| congestion_surcharge  |                                                |
+| total_amount          | Total amount charged (cash tips not included)
+
+
 ## The Problem
 
 * There are about 65,000 vehicles affiliated with Uber in the city, which provide more than 400,000 trips per day (according to the Taxi and Limousine Commission)
@@ -25,7 +49,7 @@ We used NYC's public TLC data that can be downloaded on the NYC.gov[https://www1
 
 To clean our dataset we followed Gaurav Sharma's cleaning guide on the NYC taxi data: Link[https://blog.goodaudience.com/taxi-demand-prediction-new-york-city-5e7b12305475]
 
-Our combined data file from Jan to December 2015 had 12.7M entries.
+Our combined data file from Jan to December 2015 had 12.7 million entries.
 ```
 tpep_pickup_datetime     12748986
 tpep_dropoff_datetime    12748986
@@ -85,5 +109,24 @@ Remaining data points where the recording must be incorrect as we already remove
 ```
 
 3. Keep only non-negatiev values
+
+The resulting data set left us with a little more than 12 million data entries.
+
+## Plot of the Cab Rides
+
+![/resources/NYC_plot.png]
+
+## Models
+
+We used BigML to create our prediction models. The picked a random 5% sample of our complete dataset (maximum file load <1GB) with 505,000 entries and split it in 80:20 training and test set.
+
+### Lienar Regression for Trip Fare
+
+### Linear Fare for Trip Amount
+
+### Decision Tree for High/Low Fare
+
+### Descision Tree for Tip/No Tip
+
 
 
