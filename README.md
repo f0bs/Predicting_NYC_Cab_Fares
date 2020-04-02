@@ -1,4 +1,4 @@
-# Taxi Fares in NYC
+# Taxi Fare Predictions in NYC
 
 ## Objective
 
@@ -9,7 +9,15 @@ We tested:
 * higher or lower fare (compared to median of $9.80)
 * tip or no top for next ride 
 
-## The Data
+## Problem
+
+* There are about 65,000 vehicles affiliated with Uber in the city, which provide more than 400,000 trips per day (according to the Taxi and Limousine Commission)
+* Lyft, its main rival, tallies about 112,000 trips per day
+* City law caps the number of yellow taxis at about 13,500; they typically make about 300,000 trips each day
+* About 44 percent of drivers made incomes between $20,000 and $39,000
+* Tips are higher and much more likely for longer trips (=higher fares)
+
+## Data
 
 We used NYC's public TLC data that can be downloaded on [NYC.gov](https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page). We used 2015 data as this was the last year in which the TLC provided lat and long coordinates. Each monthly dataset contains about 2GB of data.
 
@@ -37,19 +45,9 @@ We used NYC's public TLC data that can be downloaded on [NYC.gov](https://www1.n
 | total_amount          | Total amount charged (cash tips not included)
 
 
-## The Problem
-
-* There are about 65,000 vehicles affiliated with Uber in the city, which provide more than 400,000 trips per day (according to the Taxi and Limousine Commission)
-* Lyft, its main rival, tallies about 112,000 trips per day
-* City law caps the number of yellow taxis at about 13,500; they typically make about 300,000 trips each day
-* About 44 percent of drivers made incomes between $20,000 and $39,000
-* Tips are higher and much more likely for longer trips (=higher fares)
-
 ## Data Cleaning
 
-To clean our dataset we followed [Gaurav Sharma's cleaning process](https://blog.goodaudience.com/taxi-demand-prediction-new-york-city-5e7b12305475) on the NYC taxi data. 
-
-Our combined data file from Jan to December 2015 had 12.7 million entries.
+To clean our dataset we followed [Gaurav Sharma's cleaning process](https://blog.goodaudience.com/taxi-demand-prediction-new-york-city-5e7b12305475) on the NYC taxi data. Our combined data file from Jan to December 2015 had 12.7 million entries:
 ```
 tpep_pickup_datetime     12748986
 tpep_dropoff_datetime    12748986
@@ -70,7 +68,7 @@ dtype: int64
 ```
 
 
-1. Filtering out data points that were either zero or outside of NYC's coordinates: 
+### 1. Filtering out data points that were either zero or outside of NYC's coordinates: 
 ```
 #filter out entries too west or too south
 WESTMOST_LONG = -74.273654
@@ -78,11 +76,11 @@ SOUTHMOST_LAT = 40.480883
 NORTHMOST_LAT = 40.917335
 EASTMOST_LONG = -73.645863
 ```
-2. Trip characteristics
+### 2. Trip characteristics
 
 We followed Gaurav's methods for [data cleaning](https://github.com/snowolf/Taxi-Demand-Prediction-New-York-City/blob/master/Taxi-Demand-Prediction-NYC.ipynb) to remove speed, distance and duration:
 
-* Remove all rides with average speeds above 45.31 mph:
+#### Remove all rides with average speeds above 45.31 mph:
 ```
 99.1 percentile value of speed is 36.31081290376664miles/hr
 99.2 percentile value of speed is 36.91470054446461miles/hr
@@ -103,7 +101,7 @@ new_frame_cleaned = new_frame_cleaned[(new_frame_cleaned.speed>0) & (new_frame_c
 ```
 
 
-* Remove trips with a total distance of more than 23 miles:
+#### Remove trips with a total distance of more than 23 miles:
 ```
 99.1 percentile value of trip distance is 18.37miles
 99.2 percentile value of trip distance is 18.6miles
@@ -122,7 +120,7 @@ new_frame_cleaned = new_frame_cleaned[(new_frame_cleaned.speed>0) & (new_frame_c
 new_frame_cleaned = new_frame_cleaned[(new_frame_cleaned.trip_distance>0) & (new_frame_cleaned.trip_distance<23)]
 ```
 
-* Remove trips with a fare amount above $86.6:
+#### Remove trips with a fare amount above $86.6:
 ```
 99.1 percentile value of trip fare is 67.55
 99.2 percentile value of trip fare is 68.8
@@ -142,7 +140,7 @@ new_frame_cleaned = new_frame_cleaned[(new_frame_cleaned.trip_distance>0) & (new
 new_frame_cleaned = new_frame_cleaned[(new_frame_cleaned.total_amount>0) & (new_frame_cleaned.total_amount<86.6)]
 ```
 
-* Remove trips with total duration above 12hrs:
+#### Remove trips with total duration above 12hrs:
 ```
 90 percentile value of Trip Duration is 23.45min
 91 percentile value of Trip Duration is 24.35min
@@ -165,6 +163,11 @@ new_frame_cleaned = new_frame[(new_frame.trip_duration>1) & (new_frame.trip_dura
 
 ## Plot of the Cab Rides
 
+```
+import matplotlib.pyplot as plt
+concat.plot(kind="scatter", x="pickup_longitude", y="pickup_latitude", s=0.00005, figsize=(7,7))
+plt.show()
+```
 ![](/resources/NYC_plot.png)
 
 ## Data Preparation
@@ -184,11 +187,11 @@ We used BigML for our models. Pick-up date and time is automatically split into 
 
 ## Models
 
-We used BigML to create our prediction models. The picked a random 5% sample of our complete dataset (maximum file load <1GB) with 505,000 entries and split it in 80:20 training and test set.
+We used BigML to create our prediction models. The picked a random 5% sample of our complete dataset (maximum file load <1GB) with about 505,000 entries and split it in 80:20 training and test set.
 
 ### Linear Regression for Trip Fare and Tip Amount
 
-We ran linear regressions with the predictors below and removed them if the p-value was >0.05.
+We ran linear regressions with the predictors below and removed each coefficient if the p-value was >0.05.
 ```
 tpep_pickup_datetime.day-of-month
 tpep_pickup_datetime.day-of-week
@@ -205,7 +208,7 @@ Both models have little ability to predict the fare amount or the tip amount. R 
 
 ### Decision Tree for High/Low Fare
 
-We used a Decision Tree model with the same input as in the linear regressions above. We added another field as boolean *fare split* that divided the *fare_amount* into higher or lower than median ($9.80). This field was our model target.
+We used a Decision Tree model with the same input as in the linear regressions above. I added another field as boolean *fare split* that divided the *fare_amount* into higher or lower than median ($9.80). This field was our model target. This is our resulting model in BigML:
 
 ![](/resources/model_fare_class.png)
 
@@ -223,8 +226,12 @@ The ROC AUC of 0.6212 shows the model is better than a simple coin flip, but doe
 |----------------------------------------------------- |-----------------------------------------------|
 | ![](/resources/evaluation_fare_class.png)            | ![](/resources/ROC_fare_class.png)            |
 
+
 We ran various classification models (incl. ensemble models that BigML supported), but saw little to no improvement compared to a simple decision tree.
+
+
 ![](/resources/comparison_fare_class.png)
+
 
 ### Descision Tree for Tip/No Tip
 
@@ -247,17 +254,33 @@ The ROC AUC of 0.5940 shows the model is better than a simple coin flip, but eve
 |----------------------------------------------------- |-----------------------------------------------|
 | ![](/resources/evaluation_fare_class.png)            | ![](/resources/ROC_fare_class.png)            |
 
+
 We ran various classification models (incl. ensemble models that BigML supported), but saw little to no improvement compared to a simple decision tree.
+
+
 ![](/resources/comparison_fare_class.png)
 
+## Final Model
 
+We downloaded the decision tree models for the both the higher/lower fare (than median of ~$10) and the tip/no-tip model and built a small command-line based program in python for our final presentation:
+Based on the location (address) of the next ride, the day of the month and the day of the week (Mon-Sun) and the time, we predicted if the fare was above or below $10 and if a tip was more likely than not. This was intended simply to show our final models, the model performance was still of low predictability power.
+
+[Demo code](demo.py)
+
+```
+python demo.py -a '45 Rockefeller Plaza, New York, NY 10111' -dm '5' -dw '2' -hr '8' -m '23' -s '23'
+```
+Result:
+```
+We predict that this ride will be less than $10 and we expect a tip
+```
 
 ## Key Learnings
 
 
 * Predicting fares and tips amount simply based on location and time is difficult
 * K-Means model did not give much valuable insights in our effort to improve actionability
-* Models had higher success rate than random choice (50:50), but **ROC AUC** did not indicate good models
+* Models had higher success rate than random choice (50:50), but **ROC AUC did not indicate good models**
 * Even **ensemble ML models** (decision forest, boosted trees) could not really improve the model performance
 * Our model predicting the range of increase/decrease of both fare and tips show low R-squared, so the current input variables in the dataset are **not good enough predictors** to explain response variable
 
