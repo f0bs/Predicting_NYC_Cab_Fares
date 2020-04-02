@@ -69,7 +69,7 @@ dtype: int64
 
 
 ### 1. Filtering out data points that were either zero or outside of NYC's coordinates: 
-```
+```python
 #filter out entries too west or too south
 WESTMOST_LONG = -74.273654
 SOUTHMOST_LAT = 40.480883
@@ -96,7 +96,7 @@ We followed Gaurav's methods for [data cleaning](https://github.com/snowolf/Taxi
 
 ![](/resources/Speed.png)
 
-```
+```python
 new_frame_cleaned = new_frame_cleaned[(new_frame_cleaned.speed>0) & (new_frame_cleaned.speed<45.31)]
 ```
 
@@ -116,7 +116,7 @@ new_frame_cleaned = new_frame_cleaned[(new_frame_cleaned.speed>0) & (new_frame_c
 ```
 ![](/resources/Distance.png)
 
-```
+```python
 new_frame_cleaned = new_frame_cleaned[(new_frame_cleaned.trip_distance>0) & (new_frame_cleaned.trip_distance<23)]
 ```
 
@@ -136,7 +136,7 @@ new_frame_cleaned = new_frame_cleaned[(new_frame_cleaned.trip_distance>0) & (new
 
 ![](/resources/Fare.png)
 
-```
+```python
 new_frame_cleaned = new_frame_cleaned[(new_frame_cleaned.total_amount>0) & (new_frame_cleaned.total_amount<86.6)]
 ```
 
@@ -157,13 +157,13 @@ new_frame_cleaned = new_frame_cleaned[(new_frame_cleaned.total_amount>0) & (new_
 ```
 ![](/resources/Trip_duration.png)
 
-```
+```python
 new_frame_cleaned = new_frame[(new_frame.trip_duration>1) & (new_frame.trip_duration<720)]
 ```
 
 ## Plot of the Cab Rides
 
-```
+```python
 import matplotlib.pyplot as plt
 concat.plot(kind="scatter", x="pickup_longitude", y="pickup_latitude", s=0.00005, figsize=(7,7))
 plt.show()
@@ -173,7 +173,7 @@ plt.show()
 ## Data Preparation
 
 We also tested location clustering using 100 clusters, but the clusters did not add value to our models below. 
-```
+```python
 coord = new_frame_cleaned[["pickup_latitude", "pickup_longitude"]].values
 regions = MiniBatchKMeans(n_clusters = 100, batch_size = 10000).fit(coord)
 new_frame_cleaned["pickup_cluster"] = regions.predict(new_frame_cleaned[["pickup_latitude", "pickup_longitude"]])
@@ -267,7 +267,7 @@ Based on the location (address) of the next ride, the day of the month and the d
 
 [Demo code](demo.py)
 
-```
+```python
 python demo.py -a '45 Rockefeller Plaza, New York, NY 10111' -dm '5' -dw '2' -hr '8' -m '23' -s '23'
 ```
 Result:
