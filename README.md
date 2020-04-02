@@ -265,7 +265,7 @@ We ran various classification models (incl. ensemble models that BigML supported
 We downloaded the decision tree models for the both the higher/lower fare (than median of ~$10) and the tip/no-tip model and built a small command-line based program in python for our final presentation:
 Based on the location (address) of the next ride, the day of the month and the day of the week (Mon-Sun) and the time, we predicted if the fare was above or below $10 and if a tip was more likely than not. This was intended simply to show our final models, the model performance was still of low predictability power.
 
-[Demo code](demo.py)
+Here's our final [demo code](demo.py).
 
 ```python
 python demo.py -a '45 Rockefeller Plaza, New York, NY 10111' -dm '5' -dw '2' -hr '8' -m '23' -s '23'
