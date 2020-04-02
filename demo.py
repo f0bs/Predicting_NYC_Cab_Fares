@@ -1497,6 +1497,7 @@ geolocator = Nominatim(user_agent="specify_your_app_name_here")
 location = geolocator.geocode(address)
 
 
+
 if location is None:
     print(f'unknown location {address}')
 else:
